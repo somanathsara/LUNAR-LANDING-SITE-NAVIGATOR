@@ -1,4 +1,3 @@
-import React from 'react';
 import { ScreenId, DemoDataMarker } from '../types';
 import  NavLink  from './NavLink';
 

@@ -1,6 +1,5 @@
-import React from 'react';
 import { Site } from '../types';
-import { Button } from './Button';
+import Button from './Button';
 
 interface SiteCardProps {
   site: Site;

@@ -9,7 +9,6 @@ interface SiteExplorerProps {
   candidateSites: Site[];
   selectedSite: Site | null;
   onSiteSelect: (site: Site | null) => void;
-  onAnalyze: (site: Site, timestamp: string) => void;
   onBack: () => void;
   isLoading: boolean;
   error: string | null;
@@ -19,7 +18,6 @@ export default function SiteExplorer({
   candidateSites,
   selectedSite,
   onSiteSelect,
-  onAnalyze,
   onBack,
   isLoading,
   error,
@@ -37,10 +35,6 @@ export default function SiteExplorer({
 
   const handleSiteClick = (site: Site) => {
     onSiteSelect(site);
-  };
-
-  const handleAnalyzeClick = (site: Site) => {
-    onAnalyze(site, timestamp);
   };
 
   return (

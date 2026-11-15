@@ -3,9 +3,7 @@ import { AnalysisRun, GeometryResult } from '../types';
 import Card from './Card';
 import Button from './Button';
 import Badge from './Badge';
-// import { formatValue, getVisibilityBadge } from './AnalysisSummary';
-import formatValue from './AnalysisSummary';
-import  getVisibilityBadge from './AnalysisSummary';
+import { formatValue, getVisibilityBadge } from './AnalysisSummary';
 interface CompareViewProps {
   analyses: AnalysisRun[];
   onBack: () => void;

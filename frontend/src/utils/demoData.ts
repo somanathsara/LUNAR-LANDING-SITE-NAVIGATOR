@@ -124,7 +124,7 @@ export function generateDemoComparison(analyses: AnalysisRun[]) {
   };
 
   const componentScores: Record<string, Record<string, number>> = {};
-  const ranking = analyses.map((analysis, index) => {
+  const ranking = analyses.map((analysis) => {
     const sun = analysis.geometry_results.find(r => r.target === 'SUN');
     const earth = analysis.geometry_results.find(r => r.target === 'EARTH');
 

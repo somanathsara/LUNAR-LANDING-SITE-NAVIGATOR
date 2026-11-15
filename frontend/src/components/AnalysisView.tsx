@@ -1,8 +1,7 @@
-import React from 'react';
 import { AnalysisRun, GeometryResult } from '../types';
-import  Card  from './Card';
-import  Button  from './Button';
-import  Badge  from './Badge';
+import Card from './Card';
+import Button from './Button';
+import Badge from './Badge';
 import { formatValue, getVisibilityBadge, getTerrainBadge } from './AnalysisSummary';
 
 interface AnalysisViewProps {
