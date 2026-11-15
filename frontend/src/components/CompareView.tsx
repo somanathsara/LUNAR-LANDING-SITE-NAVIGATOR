@@ -1,10 +1,11 @@
 import React from 'react';
 import { AnalysisRun, GeometryResult } from '../types';
-import { Card } from './Card';
-import { Button } from './Button';
-import { Badge } from './Badge';
-import { formatValue, getVisibilityBadge, getTerrainBadge } from './AnalysisSummary';
-
+import Card from './Card';
+import Button from './Button';
+import Badge from './Badge';
+// import { formatValue, getVisibilityBadge } from './AnalysisSummary';
+import formatValue from './AnalysisSummary';
+import  getVisibilityBadge from './AnalysisSummary';
 interface CompareViewProps {
   analyses: AnalysisRun[];
   onBack: () => void;
@@ -18,14 +19,16 @@ function CompareTable({ analyses }: { analyses: AnalysisRun[] }) {
     { key: 'azimuth_deg', label: 'Azimuth', unit: '°', format: (v: number | null) => formatValue(v, '°') },
     { key: 'elevation_deg', label: 'Elevation', unit: '°', format: (v: number | null) => formatValue(v, '°') },
     { key: 'geometric_visible', label: 'Geometric Vis.', unit: '', format: (v: boolean | null) => v === null ? '—' : v ? '✓ Visible' : '✗ Obstructed' },
-    { key: 'terrain_visible', label: 'Terrain Vis.', unit: '', format: (v: 'clear' | 'obstructed' | 'unavailable' | null) => {
-      if (!v) return '—';
-      switch (v) {
-        case 'clear': return '✓ Clear';
-        case 'obstructed': return '✗ Obstructed';
-        case 'unavailable': return '? No DEM';
+    {
+      key: 'terrain_visible', label: 'Terrain Vis.', unit: '', format: (v: 'clear' | 'obstructed' | 'unavailable' | null) => {
+        if (!v) return '—';
+        switch (v) {
+          case 'clear': return '✓ Clear';
+          case 'obstructed': return '✗ Obstructed';
+          case 'unavailable': return '? No DEM';
+        }
       }
-    }},
+    },
   ];
 
   return (
@@ -156,7 +159,7 @@ function WeightsPanel() {
   );
 }
 
-export default function CompareView({ analyses, onBack, onExport, onRemoveSite }: CompareViewProps) {
+export default function CompareView({ analyses, onBack, onExport,  }: CompareViewProps) {
   return (
     <div className="compare-view space-y-6">
       {/* Header */}
@@ -203,7 +206,7 @@ export default function CompareView({ analyses, onBack, onExport, onRemoveSite }
       <Card className="p-4 bg-tertiary/50 border-secondary/50">
         <h3 className="font-semibold mb-2">Data Sources & Attribution</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-muted">
-          <p>• SPICE Kernels: NAIF (JPL) — de440.bsp, pck00010.tpc, moon_080317.tf</li>
+          <p>• SPICE Kernels: NAIF (JPL) — de440.bsp, pck00010.tpc, moon_080317.tf</p>
           <li>• Lunar Shape: IAU 2015 (1737.4 km radius)</li>
           <li>• Topography: LROC LOLA DEM (when available)</li>
           <li>• Ephemeris: JPL DE440 planetary ephemeris</li>

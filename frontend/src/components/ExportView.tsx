@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { AnalysisRun, ExportFormat, ExportData } from '../types';
-import { Card } from './Card';
-import { Button } from './Button';
-import { Badge } from './Badge';
+import  Card  from './Card';
+import  Button  from './Button';
+import  Badge  from './Badge';
 
 interface ExportViewProps {
   analyses: AnalysisRun[];

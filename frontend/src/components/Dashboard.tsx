@@ -3,8 +3,8 @@ import { Site, AnalysisRun } from '../types';
 import SiteCard from './SiteCard';
 import AnalysisSummary from './AnalysisSummary';
 import ComparisonPanel from './ComparisonPanel';
-import { Button } from './Button';
-import { Card } from './Card';
+import  Button  from './Button';
+import  Card  from './Card';
 
 interface DashboardProps {
   candidateSites: Site[];

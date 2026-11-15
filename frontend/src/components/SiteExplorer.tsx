@@ -1,8 +1,8 @@
 import React from 'react';
 import { Site } from '../types';
-import { Card } from './Card';
-import { Button } from './Button';
-import { Badge } from './Badge';
+import  Card  from './Card';
+import  Button  from './Button';
+import  Badge  from './Badge';
 import SiteCard from './SiteCard';
 
 interface SiteExplorerProps {

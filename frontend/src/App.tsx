@@ -97,7 +97,7 @@ function App() {
             style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, zIndex: 0 }}
           >
             <color attach="background" args={['#0a0e17']} />
-            <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} opacity={0.6} />
+            <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />
             <ambientLight intensity={0.4} color="#ffffff" />
             <directionalLight position={[5, 3, 5]} intensity={1.2} color="#fff8e7" />
             <directionalLight position={[-3, -2, -3]} intensity={0.3} color="#4a6fa5" />
@@ -190,7 +190,7 @@ function App() {
                   rank: i + 1
                 })),
                 created_at_utc: new Date().toISOString()
-              } : undefined
+              } : undefined}
               onBack={() => handleScreenChange(currentAnalysis ? 'analysis' : 'compare')}
             />
           )}

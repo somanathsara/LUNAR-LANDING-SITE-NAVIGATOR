@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScreenId, DemoDataMarker } from '../types';
-import { NavLink } from './NavLink';
+import  NavLink  from './NavLink';
 
 interface HeaderProps {
   currentScreen: ScreenId;

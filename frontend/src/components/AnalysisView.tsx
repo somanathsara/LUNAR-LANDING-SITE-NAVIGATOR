@@ -1,8 +1,8 @@
 import React from 'react';
 import { AnalysisRun, GeometryResult } from '../types';
-import { Card } from './Card';
-import { Button } from './Button';
-import { Badge } from './Badge';
+import  Card  from './Card';
+import  Button  from './Button';
+import  Badge  from './Badge';
 import { formatValue, getVisibilityBadge, getTerrainBadge } from './AnalysisSummary';
 
 interface AnalysisViewProps {
@@ -212,7 +212,7 @@ export default function AnalysisView({ analysis, onBack, onCompare, onAIExplain,
             <ul className="text-sm text-muted space-y-2">
               <li><strong>Azimuth:</strong> 0° = North, 90° = East. Measured clockwise from North.</li>
               <li><strong>Elevation:</strong> Angle above local horizontal. +90° = zenith, 0° = horizon, -90° = nadir.</li>
-              <li><strong>Geometric Visibility:</strong> Body is above ideal mathematical horizon (elevation > 0°).</li>
+              <li><strong>Geometric Visibility:</strong> Body is above ideal mathematical horizon (elevation {'>'} 0°).</li>
               <li><strong>Terrain Visibility:</strong> Accounts for local topography blocking line-of-sight (requires DEM).</li>
               <li><strong>DEMO Data:</strong> Values are synthetic approximations for interface demonstration only.</li>
             </ul>
