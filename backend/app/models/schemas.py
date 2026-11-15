@@ -1,7 +1,7 @@
 """Pydantic models for API requests and responses."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -39,8 +39,8 @@ class SiteBase(BaseModel):
     longitude_deg: float = Field(..., ge=0, lt=360)
     latitude_type: str = "planetocentric"
     longitude_convention: str = "east-positive"
-    elevation_m: Optional[float] = Field(default=None, ge=-10000, le=10000)
-    notes: Optional[str] = None
+    elevation_m: float | None = Field(default=None, ge=-10000, le=10000)
+    notes: str | None = None
 
 
 class SiteCreate(SiteBase):
@@ -48,13 +48,13 @@ class SiteCreate(SiteBase):
 
 
 class SiteUpdate(BaseModel):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    latitude_deg: Optional[float] = Field(default=None, ge=-90, le=90)
-    longitude_deg: Optional[float] = Field(default=None, ge=0, lt=360)
-    latitude_type: Optional[str] = None
-    longitude_convention: Optional[str] = None
-    elevation_m: Optional[float] = Field(default=None, ge=-10000, le=10000)
-    notes: Optional[str] = None
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    latitude_deg: float | None = Field(default=None, ge=-90, le=90)
+    longitude_deg: float | None = Field(default=None, ge=0, lt=360)
+    latitude_type: str | None = None
+    longitude_convention: str | None = None
+    elevation_m: float | None = Field(default=None, ge=-10000, le=10000)
+    notes: str | None = None
 
 
 class SiteResponse(SiteBase):
@@ -69,31 +69,31 @@ class SiteResponse(SiteBase):
 # Time input
 class TimeInput(BaseModel):
     timestamp_utc: str = Field(..., description="ISO 8601 UTC timestamp")
-    interval_seconds: Optional[float] = Field(
+    interval_seconds: float | None = Field(
         default=None, gt=0, description="Interval for time series"
     )
-    steps: Optional[int] = Field(default=None, gt=0, le=1000, description="Number of time steps")
+    steps: int | None = Field(default=None, gt=0, le=1000, description="Number of time steps")
 
 
 # Geometry results
 class GeometryResult(BaseModel):
     target: str = Field(..., pattern="^(SUN|EARTH)$")
-    azimuth_deg: Optional[float] = None
-    elevation_deg: Optional[float] = None
-    geometric_visible: Optional[bool] = None
-    terrain_visible: Optional[str] = Field(
+    azimuth_deg: float | None = None
+    elevation_deg: float | None = None
+    geometric_visible: bool | None = None
+    terrain_visible: str | None = Field(
         default=None, pattern="^(clear|obstructed|unavailable)$"
     )
     units: str = "degrees"
     frame: str
-    provenance: Dict[str, Any]
+    provenance: dict[str, Any]
 
 
 # Analysis models
 class AnalysisInput(BaseModel):
     site: SiteCreate
     time: TimeInput
-    conventions: Optional[CoordinateConventions] = None
+    conventions: CoordinateConventions | None = None
 
 
 class AnalysisRunResponse(BaseModel):
@@ -104,9 +104,9 @@ class AnalysisRunResponse(BaseModel):
     algorithm_version: str
     status: str
     data_mode: str
-    input_snapshot: Dict[str, Any]
-    geometry_results: List[GeometryResult]
-    limitations: List[str]
+    input_snapshot: dict[str, Any]
+    geometry_results: list[GeometryResult]
+    limitations: list[str]
 
 
 # Comparison models
@@ -125,10 +125,10 @@ class ComparisonWeights(BaseModel):
 
 
 class ComparisonInput(BaseModel):
-    sites: List[SiteCreate] = Field(..., min_length=2, max_length=4)
+    sites: list[SiteCreate] = Field(..., min_length=2, max_length=4)
     time: TimeInput
-    weights: Optional[ComparisonWeights] = None
-    conventions: Optional[CoordinateConventions] = None
+    weights: ComparisonWeights | None = None
+    conventions: CoordinateConventions | None = None
 
 
 class ComparisonComponentScores(BaseModel):
@@ -142,24 +142,24 @@ class ComparisonComponentScores(BaseModel):
 class ComparisonRanking(BaseModel):
     analysis_id: str
     site_name: str
-    score: Optional[float] = None
-    rank: Optional[int] = None
+    score: float | None = None
+    rank: int | None = None
 
 
 class ComparisonResponse(BaseModel):
     comparison_id: str
-    analysis_ids: List[str]
-    weights: Dict[str, float]
-    component_scores: Dict[str, ComparisonComponentScores]
-    ranking: List[ComparisonRanking]
+    analysis_ids: list[str]
+    weights: dict[str, float]
+    component_scores: dict[str, ComparisonComponentScores]
+    ranking: list[ComparisonRanking]
     created_at_utc: str
 
 
 # Export models
 class ExportRequest(BaseModel):
     format: str = Field(default="json", pattern="^(json|csv)$")
-    analyses: List[str] = Field(..., description="List of analysis IDs to export")
-    comparison_id: Optional[str] = None
+    analyses: list[str] = Field(..., description="List of analysis IDs to export")
+    comparison_id: str | None = None
 
 
 # AI Explanation
@@ -179,8 +179,8 @@ class AIResponse(BaseModel):
 # Error responses
 class ErrorResponse(BaseModel):
     error: str
-    detail: Optional[str] = None
-    request_id: Optional[str] = None
+    detail: str | None = None
+    request_id: str | None = None
 
 
 # Health check

@@ -8,9 +8,6 @@ conventions and preserve provenance metadata.
 import logging
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime
-from pathlib import Path
-from typing import List, Optional, Tuple
 
 import numpy as np
 import spiceypy as spice
@@ -24,10 +21,10 @@ logger = logging.getLogger(__name__)
 class GeometryResult:
     """Result of a geometry calculation for a target body."""
     target: str  # 'SUN' or 'EARTH'
-    azimuth_deg: Optional[float]
-    elevation_deg: Optional[float]
-    geometric_visible: Optional[bool]
-    terrain_visible: Optional[str]  # 'clear', 'obstructed', 'unavailable'
+    azimuth_deg: float | None
+    elevation_deg: float | None
+    geometric_visible: bool | None
+    terrain_visible: str | None  # 'clear', 'obstructed', 'unavailable'
     units: str
     frame: str
     provenance: dict
@@ -41,7 +38,7 @@ class SiteGeometry:
     sun: GeometryResult
     earth: GeometryResult
     algorithm_version: str
-    limitations: List[str]
+    limitations: list[str]
 
 
 class SpiceService:
@@ -85,7 +82,7 @@ class SpiceService:
                     spice.furnsh(str(kernel_path))
                     self._kernel_ids.append(kernel_name)
                     logger.info(f"Loaded kernel: {kernel_name}")
-                except Exception as e:
+                except spice.SpiceyError as e:
                     logger.error(f"Failed to load kernel {kernel_name}: {e}")
             else:
                 logger.warning(f"Kernel not found: {kernel_path}")
@@ -125,7 +122,7 @@ class SpiceService:
         elevation_m: float = 0.0,
         latitude_type: str = "planetocentric",
         longitude_convention: str = "east-positive",
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Compute site position and rotation matrix in Moon-fixed frame.
 
         Args:
@@ -211,7 +208,7 @@ class SpiceService:
         # Use SPICE subpoint/illumination computation
         # spkpos gives position of target relative to observer
         # We want Moon-centered observer, so use Moon as center
-        state, lt = spice.spkpos(
+        state, _ = spice.spkpos(
             targ=str(target_id),
             et=et,
             ref=frame,
@@ -238,7 +235,7 @@ class SpiceService:
         target_vec_j2000: np.ndarray,
         rot_moon_to_topo: np.ndarray,
         et: float,
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Transform target vector to topocentric frame and compute az/el.
 
         Args:
@@ -383,7 +380,7 @@ class SpiceService:
         steps: int,
         latitude_type: str = "planetocentric",
         longitude_convention: str = "east-positive",
-    ) -> List[SiteGeometry]:
+    ) -> list[SiteGeometry]:
         """Compute geometry for a time series.
 
         Args:
@@ -416,7 +413,7 @@ class SpiceService:
 
 
 # Global service instance
-_spice_service: Optional[SpiceService] = None
+_spice_service: SpiceService | None = None
 
 
 def get_spice_service() -> SpiceService:

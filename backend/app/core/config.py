@@ -2,7 +2,6 @@
 
 from functools import lru_cache
 from pathlib import Path
-from typing import List
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -26,7 +25,7 @@ class Settings(BaseSettings):
 
     # API
     api_prefix: str = "/api/v1"
-    cors_origins: List[str] = Field(
+    cors_origins: list[str] = Field(
         default=["http://localhost:3000", "http://127.0.0.1:3000"]
     )
 
@@ -54,12 +53,12 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
 
     @property
-    def kernel_list(self) -> List[str]:
+    def kernel_list(self) -> list[str]:
         """Get list of kernel filenames."""
         return [k.strip() for k in self.spice_kernels.split(",") if k.strip()]
 
     @property
-    def kernel_paths(self) -> List[Path]:
+    def kernel_paths(self) -> list[Path]:
         """Get full paths to kernel files."""
         return [self.kernel_dir / k for k in self.kernel_list]
 

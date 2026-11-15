@@ -74,7 +74,9 @@ class DemGrid:
             raise TerrainDataError("pixel_size_m must be > 0")
 
     @classmethod
-    def from_geotiff(cls, path: str, hemisphere: str = "south", metadata: dict | None = None) -> "DemGrid":
+    def from_geotiff(
+        cls, path: str, hemisphere: str = "south", metadata: dict | None = None
+    ) -> DemGrid:
         """Load a north-up polar-stereographic GeoTIFF whose values are metres."""
         import rasterio  # lazy: heavy dependency
 
@@ -193,7 +195,7 @@ def horizon_profile(
         "dem_extent_xy_m": dem.extent,
         "dem_metadata": dem.metadata,
         "interpolation": "bilinear",
-        "geometry": "exact spherical, radius %.1f m" % R,
+        "geometry": f"exact spherical, radius {R:.1f} m",
         "range_note": "Terrain beyond the DEM edge is not seen, so the horizon is a lower bound there.",
     }
     return HorizonProfile(az, horizon, z0, observer_height_m, settings, complete=valid.all(axis=1))

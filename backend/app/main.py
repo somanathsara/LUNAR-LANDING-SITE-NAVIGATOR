@@ -2,12 +2,13 @@
 
 import logging
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.core.config import get_settings
 from app.api.routes import router as api_router
+from app.core.config import get_settings
 from app.services.spice_service import get_spice_service
 
 # Configure logging

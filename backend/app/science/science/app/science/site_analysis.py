@@ -9,8 +9,13 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from . import conventions as conv
-from .constants import (AZIMUTH_CONVENTION, EARTH_BODY, ELEVATION_CONVENTION,
-                        MOON_RADIUS_M, SUN_BODY)
+from .constants import (
+    AZIMUTH_CONVENTION,
+    EARTH_BODY,
+    ELEVATION_CONVENTION,
+    MOON_RADIUS_M,
+    SUN_BODY,
+)
 from .ephemeris import EphemerisBackend, body_direction_from_site
 from .errors import EphemerisUnavailableError, TerrainDataError
 from .illumination import illumination_timeline
@@ -42,9 +47,13 @@ def analyze_site(
     lon = conv.normalize_longitude(q.longitude_deg, q.longitude_convention)
     when = parse_utc(q.timestamp_utc)
 
-    limitations: list[str] = [conv.LATITUDE_NOTE,
-                              "Geometric visibility is not a communication-link analysis "
-                              "(no antenna, relay, power or link-margin model)."]
+    limitations: list[str] = [
+        conv.LATITUDE_NOTE,
+        (
+            "Geometric visibility is not a communication-link analysis "
+            "(no antenna, relay, power or link-margin model)."
+        ),
+    ]
     provenance: dict = {
         "conventions": {
             "latitude": "planetocentric degrees", "longitude": "east-positive degrees [0, 360)",

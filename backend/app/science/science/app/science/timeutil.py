@@ -1,7 +1,7 @@
 """UTC timestamp handling and SPICE time-string conversion."""
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from .errors import InvalidInputError
 
@@ -12,12 +12,12 @@ def parse_utc(ts: str | datetime) -> datetime:
         dt = ts
     else:
         try:
-            dt = datetime.fromisoformat(str(ts).strip().replace("Z", "+00:00"))
+            dt = datetime.fromisoformat(str(ts).strip())
         except ValueError as exc:
             raise InvalidInputError(f"timestamp_utc is not valid ISO-8601: {ts!r}") from exc
     if dt.tzinfo is None:
         raise InvalidInputError("timestamp must include a timezone (use 'Z' for UTC)")
-    return dt.astimezone(timezone.utc)
+    return dt.astimezone(UTC)
 
 
 def to_spice_utc_string(dt: datetime) -> str:

@@ -1,26 +1,36 @@
 """API routes for Lunar Landing Site Navigator."""
 
 import uuid
-from datetime import datetime
-from typing import List, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 
+# from spiceypy import SpiceyError
+try:
+    import spiceypy
+    from spiceypy import SpiceyError
+    SPICE_AVAILABLE = True
+except Exception:  # RuntimeError/OSError when cspice.dll is blocked
+    spiceypy = None
+    SPICE_AVAILABLE = False
+
+    class SpiceyError(Exception):
+        pass
+
 from app.models.schemas import (
-    SiteCreate,
-    SiteResponse,
-    SiteUpdate,
-    TimeInput,
+    AIQuestion,
+    AIResponse,
     AnalysisInput,
     AnalysisRunResponse,
     ComparisonInput,
     ComparisonResponse,
     ExportRequest,
-    AIQuestion,
-    AIResponse,
     HealthResponse,
-    ErrorResponse,
+    SiteCreate,
+    SiteResponse,
+    SiteUpdate,
 )
 from app.services.spice_service import SpiceService, get_spice_service
 
@@ -30,6 +40,11 @@ router = APIRouter()
 sites_db: dict = {}
 analyses_db: dict = {}
 comparisons_db: dict = {}
+
+
+def utc_now_z() -> str:
+    """Return the current UTC timestamp in ISO 8601 format with a trailing Z."""
+    return datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
 # Demo sites for initial data
@@ -91,7 +106,7 @@ def init_demo_sites():
     """Initialize demo sites in memory."""
     for site_data in DEMO_SITES:
         site_id = site_data["site_id"]
-        now = datetime.utcnow().isoformat() + "Z"
+        now = utc_now_z()
         sites_db[site_id] = {
             **site_data,
             "created_at": now,
@@ -104,18 +119,18 @@ init_demo_sites()
 
 
 @router.get("/health", response_model=HealthResponse)
-async def health_check(spice: SpiceService = Depends(get_spice_service)):
+async def health_check(spice: Annotated[SpiceService, Depends(get_spice_service)]):
     """Health check endpoint."""
     return HealthResponse(
         status="healthy",
         version="0.1.0",
         spice_kernels_loaded=len(spice._kernel_ids),
-        timestamp=datetime.utcnow().isoformat() + "Z",
+        timestamp=utc_now_z(),
     )
 
 
 # Site endpoints
-@router.get("/sites", response_model=List[SiteResponse])
+@router.get("/sites", response_model=list[SiteResponse])
 async def list_sites():
     """List all candidate landing sites."""
     return [SiteResponse(**site) for site in sites_db.values()]
@@ -140,7 +155,7 @@ async def create_site(site: SiteCreate):
         site_id = f"{base_id}-{counter}"
         counter += 1
 
-    now = datetime.utcnow().isoformat() + "Z"
+    now = utc_now_z()
     site_data = {
         "site_id": site_id,
         **site.model_dump(),
@@ -160,7 +175,7 @@ async def update_site(site_id: str, site_update: SiteUpdate):
     site_data = sites_db[site_id]
     update_data = site_update.model_dump(exclude_unset=True)
     site_data.update(update_data)
-    site_data["updated_at"] = datetime.utcnow().isoformat() + "Z"
+    site_data["updated_at"] = utc_now_z()
     return SiteResponse(**site_data)
 
 
@@ -177,7 +192,7 @@ async def delete_site(site_id: str):
 async def analyze_site(
     request: Request,
     input_data: AnalysisInput,
-    spice: SpiceService = Depends(get_spice_service),
+    spice: Annotated[SpiceService, Depends(get_spice_service)],
 ):
     """Analyze a single site at a given time."""
     site = input_data.site
@@ -186,7 +201,7 @@ async def analyze_site(
 
     # Validate timestamp format
     try:
-        datetime.fromisoformat(time.timestamp_utc.replace("Z", "+00:00"))
+        datetime.fromisoformat(time.timestamp_utc)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid timestamp format. Use ISO 8601 UTC.")
 
@@ -205,8 +220,8 @@ async def analyze_site(
             latitude_type=lat_type,
             longitude_convention=lon_conv,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"SPICE computation failed: {str(e)}")
+    except SpiceyError as e:
+        raise HTTPException(status_code=500, detail=f"SPICE computation failed: {e!s}") from e
 
     # Build response
     analysis_id = f"analysis-{uuid.uuid4().hex[:12]}"
@@ -214,7 +229,7 @@ async def analyze_site(
         "analysis_id": analysis_id,
         "site_id": site.name.lower().replace(" ", "-"),
         "timestamp_utc": time.timestamp_utc,
-        "created_at_utc": datetime.utcnow().isoformat() + "Z",
+        "created_at_utc": utc_now_z(),
         "algorithm_version": result.algorithm_version,
         "status": "completed",
         "data_mode": "LIVE",
@@ -251,10 +266,10 @@ async def analyze_site(
     return AnalysisRunResponse(**analysis)
 
 
-@router.post("/analyze/time-series", response_model=List[AnalysisRunResponse])
+@router.post("/analyze/time-series", response_model=list[AnalysisRunResponse])
 async def analyze_time_series(
     input_data: AnalysisInput,
-    spice: SpiceService = Depends(get_spice_service),
+    spice: Annotated[SpiceService, Depends(get_spice_service)],
 ):
     """Analyze a site over a time series."""
     site = input_data.site
@@ -285,8 +300,8 @@ async def analyze_time_series(
             latitude_type=lat_type,
             longitude_convention=lon_conv,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"SPICE computation failed: {str(e)}")
+    except SpiceyError as e:
+        raise HTTPException(status_code=500, detail=f"SPICE computation failed: {e!s}") from e
 
     analyses = []
     for result in results:
@@ -295,7 +310,7 @@ async def analyze_time_series(
             "analysis_id": analysis_id,
             "site_id": result.site_id,
             "timestamp_utc": result.timestamp_utc,
-            "created_at_utc": datetime.utcnow().isoformat() + "Z",
+            "created_at_utc": utc_now_z(),
             "algorithm_version": result.algorithm_version,
             "status": "completed",
             "data_mode": "LIVE",
@@ -345,7 +360,7 @@ async def get_analysis(analysis_id: str):
 @router.post("/compare", response_model=ComparisonResponse)
 async def compare_sites(
     input_data: ComparisonInput,
-    spice: SpiceService = Depends(get_spice_service),
+    spice: Annotated[SpiceService, Depends(get_spice_service)],
 ):
     """Compare multiple sites at a common timestamp."""
     if len(input_data.sites) < 2:
@@ -377,15 +392,18 @@ async def compare_sites(
                 latitude_type=lat_type,
                 longitude_convention=lon_conv,
             )
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"SPICE computation failed for {site.name}: {str(e)}")
+        except SpiceyError as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"SPICE computation failed for {site.name}: {e!s}",
+            ) from e
 
         analysis_id = f"analysis-{uuid.uuid4().hex[:12]}"
         analysis = {
             "analysis_id": analysis_id,
             "site_id": site.name.lower().replace(" ", "-"),
             "timestamp_utc": input_data.time.timestamp_utc,
-            "created_at_utc": datetime.utcnow().isoformat() + "Z",
+            "created_at_utc": utc_now_z(),
             "algorithm_version": result.algorithm_version,
             "status": "completed",
             "data_mode": "LIVE",
@@ -456,7 +474,7 @@ async def compare_sites(
         "weights": weights,
         "component_scores": component_scores,
         "ranking": ranking,
-        "created_at_utc": datetime.utcnow().isoformat() + "Z",
+        "created_at_utc": utc_now_z(),
     }
     comparisons_db[comparison_id] = comparison
 
@@ -530,19 +548,18 @@ async def export_data(request: ExportRequest):
     comparison = comparisons_db.get(request.comparison_id) if request.comparison_id else None
 
     if request.format == "json":
-        import json
         data = {
             "format": "json",
             "analyses": export_analyses,
             "comparison": comparison,
             "metadata": {
-                "exported_at_utc": datetime.utcnow().isoformat() + "Z",
+                "exported_at_utc": utc_now_z(),
                 "application_version": "0.1.0",
                 "disclaimer": "DEMO/SYNTHETIC DATA — Not validated for mission use",
             },
         }
         return JSONResponse(content=data, headers={
-            "Content-Disposition": f'attachment; filename="lunar-export-{datetime.utcnow().strftime("%Y%m%d-%H%M%S")}.json"'
+            "Content-Disposition": f'attachment; filename="lunar-export-{datetime.now(UTC).strftime("%Y%m%d-%H%M%S")}.json"'
         })
     else:
         # CSV export
@@ -598,6 +615,6 @@ async def export_data(request: ExportRequest):
         return JSONResponse(
             content={"csv": output.getvalue()},
             headers={
-                "Content-Disposition": f'attachment; filename="lunar-export-{datetime.utcnow().strftime("%Y%m%d-%H%M%S")}.csv"'
+                "Content-Disposition": f'attachment; filename="lunar-export-{datetime.now(UTC).strftime("%Y%m%d-%H%M%S")}.csv"'
             }
         )

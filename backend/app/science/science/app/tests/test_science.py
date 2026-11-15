@@ -1,15 +1,26 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import numpy as np
 import pytest
 
-from app.science import (DemGrid, InvalidInputError, SiteQuery, analyze_site, az_el_to_vector,
-                         body_direction_from_site, horizon_profile, illumination_timeline,
-                         normalize_latitude, normalize_longitude, terrain_clear, vector_to_az_el)
+from app.science import (
+    DemGrid,
+    InvalidInputError,
+    SiteQuery,
+    analyze_site,
+    az_el_to_vector,
+    body_direction_from_site,
+    horizon_profile,
+    illumination_timeline,
+    normalize_latitude,
+    normalize_longitude,
+    terrain_clear,
+    vector_to_az_el,
+)
 from app.science.terrain import grid_direction, polar_stereographic_forward
 from app.science.timeutil import parse_utc, to_spice_utc_string
 
-T0 = datetime(2026, 11, 14, 12, tzinfo=timezone.utc)
+T0 = datetime(2026, 11, 14, 12, tzinfo=UTC)
 
 
 class FakeEphemeris:
@@ -57,10 +68,10 @@ def test_timestamps():
 
 # ---- frames
 def test_az_el_synthetic_vectors():
-    assert vector_to_az_el([1, 0, 0], 0, 0)[1] == pytest.approx(90)      # zenith
-    az, el = vector_to_az_el([0, 0, 1], 0, 0)                            # north pole direction
+    assert vector_to_az_el([1, 0, 0], 0, 0)[1] == pytest.approx(90)  # zenith
+    az, el = vector_to_az_el([0, 0, 1], 0, 0)  # north pole direction
     assert (az, el) == (pytest.approx(0), pytest.approx(0))
-    az, el = vector_to_az_el([0, 1, 0], 0, 0)                            # +Y is east at lon 0
+    az, el = vector_to_az_el([0, 1, 0], 0, 0)  # +Y is east at lon 0
     assert (az, el) == (pytest.approx(90), pytest.approx(0))
     assert vector_to_az_el([-1, 0, 0], 0, 0)[1] == pytest.approx(-90)
 
@@ -85,10 +96,12 @@ def test_grid_direction_matches_finite_difference(hemi, lat):
     lon = 37.0
     x0, y0 = polar_stereographic_forward(lat, lon, hemi)
     x1, y1 = polar_stereographic_forward(lat + 1e-6, lon, hemi)         # one step toward lunar north
-    north = np.array([x1 - x0, y1 - y0]); north /= np.linalg.norm(north)
+    north = np.array([x1 - x0, y1 - y0])
+    north /= np.linalg.norm(north)
     assert np.allclose(grid_direction(0.0, lon, hemi), north, atol=1e-5)
     x2, y2 = polar_stereographic_forward(lat, lon + 1e-6, hemi)         # one step toward lunar east
-    east = np.array([x2 - x0, y2 - y0]); east /= np.linalg.norm(east)
+    east = np.array([x2 - x0, y2 - y0])
+    east /= np.linalg.norm(east)
     assert np.allclose(grid_direction(90.0, lon, hemi), east, atol=1e-5)
 
 
@@ -98,7 +111,7 @@ def make_dem(ridge=None, px=10.0, half=6000.0, lat=-89.5, lon=0.0, hole=None):
     n = int(2 * half / px)
     xs = sx - half + (np.arange(n) + 0.5) * px
     ys = sy + half - (np.arange(n) + 0.5) * px
-    X, Y = np.meshgrid(xs, ys)
+    X, _ = np.meshgrid(xs, ys)
     Z = np.zeros((n, n))
     if ridge:
         Z[(X - sx >= ridge[0]) & (X - sx < ridge[0] + 50)] = ridge[1]      # wall to the east

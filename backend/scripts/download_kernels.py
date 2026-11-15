@@ -12,8 +12,8 @@ Kernels needed:
 - naif0012.tls: Leapseconds kernel
 """
 
-import os
 import sys
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -46,7 +46,7 @@ def download_file(url: str, dest: Path, description: str = "") -> bool:
         urllib.request.urlretrieve(url, dest, progress_hook)
         print("\n  Done!")
         return True
-    except Exception as e:
+    except (urllib.error.URLError, OSError) as e:
         print(f"\n  Failed: {e}")
         return False
 
