@@ -1,0 +1,167 @@
+/* Additional component-specific styles */
+
+/* Input styles */
+.input {
+  @apply bg-tertiary border border-secondary rounded px-3 py-2 text-primary placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent;
+}
+
+.input:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Badge component */
+.badge {
+  @apply inline-flex items-center font-medium rounded-full px-2.5 py-1 text-xs;
+}
+
+/* Card hover effects */
+.card-hover {
+  @apply transition-all duration-200;
+}
+
+.card-hover:hover {
+  @apply border-accent-primary/30 shadow-md;
+}
+
+/* Table styles */
+.table-container {
+  @apply overflow-x-auto;
+}
+
+.table-container table {
+  @apply w-full text-sm;
+}
+
+.table-container th {
+  @apply p-3 text-left font-medium text-primary border-b border-secondary bg-tertiary/50 sticky top-0 z-10;
+}
+
+.table-container td {
+  @apply p-3 border-b border-secondary/50;
+}
+
+.table-container tr:hover {
+  @apply bg-tertiary/30;
+}
+
+/* Prose styles for AI responses */
+.prose {
+  @apply text-secondary;
+}
+
+.prose p {
+  @apply mb-2;
+}
+
+.prose strong {
+  @apply text-primary font-semibold;
+}
+
+.prose ul {
+  @apply list-disc list-inside space-y-1 mb-2;
+}
+
+.prose ol {
+  @apply list-decimal list-inside space-y-1 mb-2;
+}
+
+.prose code {
+  @apply bg-tertiary px-1.5 py-0.5 rounded text-accent-primary text-sm;
+}
+
+.prose pre {
+  @apply bg-secondary p-3 rounded overflow-x-auto mb-2;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0 text-primary;
+}
+
+/* Scrollbar for code blocks */
+pre::-webkit-scrollbar {
+  height: 6px;
+}
+
+pre::-webkit-scrollbar-track {
+  @apply bg-tertiary;
+}
+
+pre::-webkit-scrollbar-thumb {
+  @apply bg-border-primary rounded;
+}
+
+/* Animation for loading states */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  @apply bg-tertiary rounded;
+  background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    @apply grid-cols-1;
+  }
+
+  .moon-canvas-container {
+    @apply h-[300px];
+  }
+}
+
+@media (max-width: 1024px) {
+  .moon-canvas-container {
+    @apply h-[400px];
+  }
+}
+
+/* Focus visible for accessibility */
+.focus-visible:focus-visible {
+  @apply outline-2 outline-accent-primary outline-offset-2;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border-primary: #ffffff;
+    --border-secondary: #cccccc;
+    --text-secondary: #ffffff;
+    --text-muted: #cccccc;
+  }
+}
+
+/* Print styles */
+@media print {
+  .app-header,
+  .app-footer,
+  .moon-canvas-container,
+  button,
+  select,
+  input {
+    display: none !important;
+  }
+
+  .screen-content {
+    @apply static z-auto;
+  }
+
+  body {
+    @apply bg-white text-black;
+  }
+}
