@@ -24,7 +24,7 @@ services:
     environment:
       - DEBUG=false
       - SPICE_KERNEL_DIR=/app/data/kernels
-      - CORS_ORIGINS=["http://localhost:3000", "http://frontend:3000"]
+      - CORS_ORIGINS=["https://lunar-landing-site-navigator-jo55.onrender.com"]
     volumes:
       - ./backend:/app
       - ./data:/app/data
