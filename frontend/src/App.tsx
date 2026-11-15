@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stars, Html } from '@react-three/drei';
+import { OrbitControls, Stars } from '@react-three/drei';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import SiteExplorer from './components/SiteExplorer';
@@ -23,7 +23,7 @@ function App() {
   const [comparisonAnalyses, setComparisonAnalyses] = useState<AnalysisRun[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [demoMode, setDemoMode] = useState<DemoDataMarker>({
+  const [demoMode] = useState<DemoDataMarker>({
     isDemo: true,
     message: 'DEMO / SYNTHETIC DATA — Not validated for mission use'
   });
@@ -142,7 +142,6 @@ function App() {
               candidateSites={candidateSites}
               selectedSite={selectedSite}
               onSiteSelect={setSelectedSite}
-              onAnalyze={handleAnalyze}
               onBack={() => handleScreenChange('dashboard')}
               isLoading={isLoading}
               error={error}

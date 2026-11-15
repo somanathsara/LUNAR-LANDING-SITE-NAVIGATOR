@@ -69,7 +69,7 @@ export const api = {
 
   // Export
   export: {
-    download: (request: ExportRequest) => request<Blob>('/export', { method: 'POST', body: JSON.stringify(request) }),
+    download: (payload: ExportRequest) => request<Blob>('/export', { method: 'POST', body: JSON.stringify(payload) }),
   },
 };
 

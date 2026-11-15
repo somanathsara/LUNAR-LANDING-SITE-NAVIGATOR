@@ -1,6 +1,7 @@
-import React, { useMemo, useRef, useEffect } from 'react';
+import { useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Mesh, SphereGeometry, MeshStandardMaterial, Vector3, Group, CircleGeometry, MeshBasicMaterial, DoubleSide, Line, BufferGeometry, LineBasicMaterial, Float32BufferAttribute } from 'three';
+import { Html, Line as DreiLine } from '@react-three/drei';
+import { Vector3, Group, DoubleSide, BufferGeometry, Float32BufferAttribute } from 'three';
 import { Site } from '../types';
 
 interface MoonSceneProps {
@@ -42,45 +43,43 @@ function SiteMarker({ site, isSelected, isComparison, color }: {
   });
 
   const markerSize = isSelected ? 0.08 : isComparison ? 0.06 : 0.05;
-  const pulseSpeed = isSelected ? 3 : 2;
-
   return (
-    <Group ref={groupRef} position={position.toArray()}>
+    <group ref={groupRef} position={position.toArray()}>
       {/* Outer glow ring */}
-      <Mesh>
-        <CircleGeometry args={[markerSize * 1.5, 32]} />
-        <MeshBasicMaterial
+      <mesh>
+        <circleGeometry args={[markerSize * 1.5, 32]} />
+        <meshBasicMaterial
           color={color}
           transparent
           opacity={0.3}
           side={DoubleSide}
           depthWrite={false}
         />
-      </Mesh>
+      </mesh>
 
       {/* Main marker */}
-      <Mesh>
-        <CircleGeometry args={[markerSize, 32]} />
-        <MeshBasicMaterial
+      <mesh>
+        <circleGeometry args={[markerSize, 32]} />
+        <meshBasicMaterial
           color={color}
           transparent
           opacity={0.9}
           side={DoubleSide}
           depthWrite={false}
         />
-      </Mesh>
+      </mesh>
 
       {/* Center dot */}
-      <Mesh>
-        <CircleGeometry args={[markerSize * 0.4, 16]} />
-        <MeshBasicMaterial
+      <mesh>
+        <circleGeometry args={[markerSize * 0.4, 16]} />
+        <meshBasicMaterial
           color="#ffffff"
           transparent
           opacity={1}
           side={DoubleSide}
           depthWrite={false}
         />
-      </Mesh>
+      </mesh>
 
       {/* Label - using HTML overlay would be better, but keeping simple for now */}
       <Html
@@ -97,7 +96,7 @@ function SiteMarker({ site, isSelected, isComparison, color }: {
       >
         {site.name}
       </Html>
-    </Group>
+    </group>
   );
 }
 
@@ -126,17 +125,17 @@ function SunDirectionIndicator({ sunAzimuth, sunElevation }: { sunAzimuth: numbe
   ).normalize().multiplyScalar(LUNAR_RADIUS * SCALE * 1.5);
 
   return (
-    <Group ref={groupRef} position={dir.toArray()}>
-      <Mesh>
-        <CircleGeometry args={[0.06, 16]} />
-        <MeshBasicMaterial
+    <group ref={groupRef} position={dir.toArray()}>
+      <mesh>
+        <circleGeometry args={[0.06, 16]} />
+        <meshBasicMaterial
           color="#ffb800"
           transparent
           opacity={0.9}
           side={DoubleSide}
           depthWrite={false}
         />
-      </Mesh>
+      </mesh>
       <Html
         position={dir.clone().multiplyScalar(1.1).toArray()}
         style={{
@@ -151,7 +150,7 @@ function SunDirectionIndicator({ sunAzimuth, sunElevation }: { sunAzimuth: numbe
       >
         ☀ Sun
       </Html>
-    </Group>
+    </group>
   );
 }
 
@@ -177,17 +176,17 @@ function EarthDirectionIndicator({ earthAzimuth, earthElevation }: { earthAzimut
   ).normalize().multiplyScalar(LUNAR_RADIUS * SCALE * 1.5);
 
   return (
-    <Group ref={groupRef} position={dir.toArray()}>
-      <Mesh>
-        <CircleGeometry args={[0.05, 16]} />
-        <MeshBasicMaterial
+    <group ref={groupRef} position={dir.toArray()}>
+      <mesh>
+        <circleGeometry args={[0.05, 16]} />
+        <meshBasicMaterial
           color="#00a3e0"
           transparent
           opacity={0.9}
           side={DoubleSide}
           depthWrite={false}
         />
-      </Mesh>
+      </mesh>
       <Html
         position={dir.clone().multiplyScalar(1.1).toArray()}
         style={{
@@ -202,15 +201,15 @@ function EarthDirectionIndicator({ earthAzimuth, earthElevation }: { earthAzimut
       >
         🌍 Earth
       </Html>
-    </Group>
+    </group>
   );
 }
 
 function TerminatorLine() {
-  const lineRef = useRef<Line>(null);
+  const lineRef = useRef<any>(null);
   const timeRef = useRef(0);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     timeRef.current += delta * 0.1;
     if (lineRef.current) {
       // Slowly rotate terminator
@@ -232,20 +231,18 @@ function TerminatorLine() {
   geometry.setAttribute('position', new Float32BufferAttribute(points, 3));
 
   return (
-    <Line
+    <DreiLine
       ref={lineRef}
-      geometry={geometry}
-      material={new LineBasicMaterial({
-        color: '#ffb800',
-        transparent: true,
-        opacity: 0.3,
-        depthWrite: false
-      })}
+      points={Array.from({ length: points.length / 3 }, (_, i) => [points[i * 3], points[i * 3 + 1], points[i * 3 + 2]] as [number, number, number])}
+      color="#ffb800"
+      transparent
+      opacity={0.3}
+      lineWidth={1}
     />
   );
 }
 
-export default function MoonScene({ selectedSite, comparisonSites, currentScreen }: MoonSceneProps) {
+export default function MoonScene({ selectedSite, comparisonSites }: MoonSceneProps) {
   const { geometryResults } = selectedSite ? (selectedSite as any) : {};
   const sunAzimuth = geometryResults?.find((r: any) => r.target === 'SUN')?.azimuth_deg ?? null;
   const sunElevation = geometryResults?.find((r: any) => r.target === 'SUN')?.elevation_deg ?? null;
@@ -253,17 +250,17 @@ export default function MoonScene({ selectedSite, comparisonSites, currentScreen
   const earthElevation = geometryResults?.find((r: any) => r.target === 'EARTH')?.elevation_deg ?? null;
 
   return (
-    <Group>
+    <group>
       {/* Moon Sphere */}
-      <Mesh>
-        <SphereGeometry args={[LUNAR_RADIUS * SCALE, 64, 64]} />
-        <MeshStandardMaterial
+      <mesh>
+        <sphereGeometry args={[LUNAR_RADIUS * SCALE, 64, 64]} />
+        <meshStandardMaterial
           color="#888888"
           roughness={0.9}
           metalness={0.05}
           map={null} // Would use lunar texture in production
         />
-      </Mesh>
+      </mesh>
 
       {/* Terminator line */}
       <TerminatorLine />
@@ -296,36 +293,38 @@ export default function MoonScene({ selectedSite, comparisonSites, currentScreen
       )}
 
       {/* Coordinate grid lines (subtle) */}
-      <Group>
+      <group>
         {[-90, -60, -30, 0, 30, 60, 90].map(lat => (
-          <Line
+          <DreiLine
             key={`lat-${lat}`}
-            geometry={new BufferGeometry().setAttribute('position', new Float32BufferAttribute(
-              Array.from({ length: 65 }, (_, i) => {
-                const lon = (i / 64) * Math.PI * 2;
-                const latRad = (lat * Math.PI) / 180;
-                const r = LUNAR_RADIUS * SCALE * 1.002;
-                return [r * Math.cos(latRad) * Math.cos(lon), r * Math.sin(latRad), r * Math.cos(latRad) * Math.sin(lon)];
-              }).flat(), 3
-            ))}
-            material={new LineBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.05, depthWrite: false })}
+            points={Array.from({ length: 65 }, (_, i) => {
+              const lon = (i / 64) * Math.PI * 2;
+              const latRad = (lat * Math.PI) / 180;
+              const r = LUNAR_RADIUS * SCALE * 1.002;
+              return [r * Math.cos(latRad) * Math.cos(lon), r * Math.sin(latRad), r * Math.cos(latRad) * Math.sin(lon)] as [number, number, number];
+            })}
+            color="#ffffff"
+            transparent
+            opacity={0.05}
+            lineWidth={1}
           />
         ))}
         {[0, 45, 90, 135, 180, 225, 270, 315].map(lon => (
-          <Line
+          <DreiLine
             key={`lon-${lon}`}
-            geometry={new BufferGeometry().setAttribute('position', new Float32BufferAttribute(
-              Array.from({ length: 65 }, (_, i) => {
-                const lat = (i / 64 - 0.5) * Math.PI;
-                const lonRad = (lon * Math.PI) / 180;
-                const r = LUNAR_RADIUS * SCALE * 1.002;
-                return [r * Math.cos(lat) * Math.cos(lonRad), r * Math.sin(lat), r * Math.cos(lat) * Math.sin(lonRad)];
-              }).flat(), 3
-            ))}
-            material={new LineBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.05, depthWrite: false })}
+            points={Array.from({ length: 65 }, (_, i) => {
+              const lat = (i / 64 - 0.5) * Math.PI;
+              const lonRad = (lon * Math.PI) / 180;
+              const r = LUNAR_RADIUS * SCALE * 1.002;
+              return [r * Math.cos(lat) * Math.cos(lonRad), r * Math.sin(lat), r * Math.cos(lat) * Math.sin(lonRad)] as [number, number, number];
+            })}
+            color="#ffffff"
+            transparent
+            opacity={0.05}
+            lineWidth={1}
           />
         ))}
-      </Group>
-    </Group>
+      </group>
+    </group>
   );
 }

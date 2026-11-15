@@ -1,8 +1,7 @@
-import React from 'react';
 import { Site } from '../types';
-import { Card } from './Card';
-import { Button } from './Button';
-import { Badge } from './Badge';
+import Card from './Card';
+import Button from './Button';
+import Badge from './Badge';
 
 interface ComparisonPanelProps {
   comparisonSites: Site[];

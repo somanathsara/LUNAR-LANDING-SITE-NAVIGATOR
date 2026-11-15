@@ -1,19 +1,17 @@
-import React from 'react';
-import { AnalysisRun, GeometryResult } from '../types';
-import { Card } from './Card';
-import { Badge } from './Badge';
-import { Button } from './Button';
+import { AnalysisRun } from '../types';
+import Card from './Card';
+import Badge from './Badge';
 
 interface AnalysisSummaryProps {
   analysis: AnalysisRun;
 }
 
-function formatValue(value: number | null, unit: string): string {
-  if (value === null) return '—';
+export function formatValue(value: number | null | undefined, unit: string): string {
+  if (value == null) return '—';
   return `${value.toFixed(2)} ${unit}`;
 }
 
-function getVisibilityBadge(visible: boolean | null, label: string) {
+export function getVisibilityBadge(visible: boolean | null, label: string) {
   if (visible === null) {
     return <Badge variant="default">Unknown</Badge>;
   }
@@ -24,7 +22,7 @@ function getVisibilityBadge(visible: boolean | null, label: string) {
   );
 }
 
-function getTerrainBadge(terrain: 'clear' | 'obstructed' | 'unavailable' | null) {
+export function getTerrainBadge(terrain: 'clear' | 'obstructed' | 'unavailable' | null) {
   switch (terrain) {
     case 'clear':
       return <Badge variant="success">Clear</Badge>;

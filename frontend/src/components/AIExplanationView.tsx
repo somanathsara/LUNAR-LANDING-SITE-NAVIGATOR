@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { AnalysisRun } from '../types';
-import { Card } from './Card';
-import { Button } from './Button';
-import { Badge } from './Badge';
+import Card from './Card';
+import Button from './Button';
+import { formatValue as formatMetricValue } from './AnalysisSummary';
 
 interface AIExplanationViewProps {
   analysis: AnalysisRun;
@@ -135,11 +135,11 @@ This explanation references only the validated metrics shown above. The AI does 
           </div>
           <div>
             <span className="text-muted">Sun:</span>
-            <div className="font-mono text-primary">El. {formatValue(sun?.elevation_deg, '°')}, Az. {formatValue(sun?.azimuth_deg, '°')}</div>
+            <div className="font-mono text-primary">El. {formatMetricValue(sun?.elevation_deg ?? null, '°')}, Az. {formatMetricValue(sun?.azimuth_deg ?? null, '°')}</div>
           </div>
           <div>
             <span className="text-muted">Earth:</span>
-            <div className="font-mono text-primary">El. {formatValue(earth?.elevation_deg, '°')}, Az. {formatValue(earth?.azimuth_deg, '°')}</div>
+            <div className="font-mono text-primary">El. {formatMetricValue(earth?.elevation_deg ?? null, '°')}, Az. {formatMetricValue(earth?.azimuth_deg ?? null, '°')}</div>
           </div>
         </div>
       </Card>
@@ -230,9 +230,4 @@ This explanation references only the validated metrics shown above. The AI does 
       </Card>
     </div>
   );
-}
-
-function formatValue(value: number | null, unit: string): string {
-  if (value === null) return '—';
-  return `${value.toFixed(1)} ${unit}`;
 }

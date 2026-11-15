@@ -36,7 +36,6 @@ export default function Dashboard({
   error,
 }: DashboardProps) {
   const [timestamp, setTimestamp] = React.useState(() => new Date().toISOString().slice(0, 16));
-  const [showTimestampPicker, setShowTimestampPicker] = React.useState(false);
 
   const handleSiteClick = (site: Site) => {
     onSiteSelect(site);
